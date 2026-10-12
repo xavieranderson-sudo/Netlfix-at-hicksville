@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Netflix Clone</title>
+  <style>
+/* Reset & Base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  background-color: #141414;
+  color: #fff;
+  overflow-x: hidden;
+}
+
+/* Navbar */
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  padding: 20px 4%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 1000;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.7) 10%, transparent);
+  transition: background 0.3s;
+}
+
+.navbar.scrolled {
+  background-color: #141414;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.logo {
+  color: #e50914;
+  font-size: 1.8rem;
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: 1px;
+}
+
+.nav-links {
+  display: flex;
+  list-style: none;
+  gap: 20px;
+}
+
+.nav-links a {
+  color: #e5e5e5;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: #fff;
+  font-weight: 500;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  background: rgba(0,0,0,0.75);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.search-input {
+  background: transparent;
+  border: none;
+  color: #fff;
+  padding: 8px 12px;
+  width: 220px;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: #aaa;
+}
+
+.search-btn {
+  background: transparent;
+  border: none;
+  color: #fff;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+/* Hero Section */
+.hero {
+  position: relative;
+  height: 80vh;
+  min-height: 500px;
+  background-size: cover;
+  background-position: center top;
+  display: flex;
+  align-items: flex-end;
+  padding: 0 4% 8%;
+}
+
+.hero-content {
+  max-width: 600px;
+  z-index: 2;
+}
+
+.hero-title {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+  line-height: 1.1;
+}
+
+.hero-overview {
+  font-size: 1.15rem;
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.8);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.btn {
+  padding: 10px 28px;
+  border: none;
+  border-radius: 4px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.btn-play {
+  background-color: #fff;
+  color: #000;
+}
+
+.btn-play:hover {
+  background-color: rgba(255,255,255,0.75);
+}
+
+.btn-info {
+  background-color: rgba(109,109,110,0.7);
+  color: #fff;
+}
+
+.btn-info:hover {
+  background-color: rgba(109,109,110,0.4);
+}
+
+.hero-fade {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 150px;
+  background: linear-gradient(to top, #141414, transparent);
+}
+
+/* Main Content & Rows */
+.main-content {
+  margin-top: -80px;
+  position: relative;
+  z-index: 5;
+  padding-bottom: 60px;
+}
+
+.row {
+  margin-bottom: 40px;
+  padding: 0 4%;
+}
+
+.row-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #e5e5e5;
+}
+
+.row-posters {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 20px;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+
+.row-posters::-webkit-scrollbar {
+  display: none;
+}
+
+.movie-card {
+  flex: 0 0 auto;
+  width: 200px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  position: relative;
+}
+
+.movie-card:hover {
+  transform: scale(1.08);
+  z-index: 10;
+}
+
+.movie-card img {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+.movie-card .card-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+  padding: 40px 10px 10px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  border-radius: 0 0 4px 4px;
+}
+
+.movie-card:hover .card-info {
+  opacity: 1;
+}
+
+.card-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-rating {
+  font-size: 0.8rem;
+  color: #46d369;
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.85);
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal.active {
+  display: flex;
+}
+
+.modal-content {
+  background-color: #181818;
+  border-radius: 8px;
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  animation: modalIn 0.3s ease;
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 2rem;
+  color: #fff;
+  cursor: pointer;
+  z-index: 10;
+  background: rgba(0,0,0,0.5);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.close-btn:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+.modal-body {
+  display: flex;
+  gap: 30px;
+  padding: 40px;
+}
+
+.modal-poster {
+  width: 280px;
+  height: auto;
+  border-radius: 6px;
+  flex-shrink: 0;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+}.modal-info h2 {
+  font-size: 2rem;
+  margin-bottom: 12px;
+}
+
+.modal-meta {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  font-size: 0.95rem;
+  color: #aaa;
+}
+
+.rating {
+  color: #46d369;
+  font-weight: 600;
+}
+
+.modal-info p {
+  line-height: 1.6;
+  margin-bottom: 24px;
+  color: #ddd;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+/* Loading & Empty States */
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #aaa;
+  font-size: 1.1rem;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .hero-title {
+    font-size: 2.4rem;
+  }
+  
+  .nav-links {
+    display: none;
+  }
+  
+  .modal-body {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .modal-poster {
+    width: 200px;
+  }
+}
+
+@media (max-width: 600px) {
+  .hero {
+    height: 70vh;
+    padding-bottom: 60px;
+  }
+  
+  .hero-title {
+    font-size: 1.8rem;
+  }
+  
+  .hero-overview {
+    font-size: 0.95rem;
+    -webkit-line-clamp: 2;
+  }
+  
+  .movie-card {
+    width: 140px;
+  }
+  
+  .movie-card img {
+    height: 210px;
+  }
+  
+  .search-input {
+    width: 140px;
+  }
+  
+  .btn {
+    padding: 8px 18px;
+    font-size: 0.95rem;
+  }
+}
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-left">
+      <a href="#" class="logo">NETFLIX</a>
+      <ul class="nav-links">
+        <li><a href="#" class="active">Home</a></li>
+        <li><a href="#">TV Shows</a></li>
+        <li><a href="#">Movies</a></li>
+        <li><a href="#">New & Popular</a></li>
+        <li><a href="#">My List</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Titles, people, genres..." class="search-input">
+        <button id="searchBtn" class="search-btn">🔍</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Banner -->
+  <header class="hero" id="hero">
+    <div class="hero-content">
+      <h1 class="hero-title" id="heroTitle">Loading...</h1>
+      <p class="hero-overview" id="heroOverview"></p>
+      <div class="hero-buttons">
+        <button class="btn btn-play">▶ Play</button>
+        <button class="btn btn-info">ℹ More Info</button>
+      </div>
+    </div>
+    <div class="hero-fade"></div>
+  </header>
+
+  <!-- Movie Rows -->
+  <main class="main-content">
+    <section class="row" id="trendingRow">
+      <h2 class="row-title">Trending Now</h2>
+      <div class="row-posters" id="trending"></div>
+    </section>
+
+    <section class="row" id="popularRow">
+      <h2 class="row-title">Popular on Netflix</h2>
+      <div class="row-posters" id="popular"></div>
+    </section>
+
+    <section class="row" id="topRatedRow">
+      <h2 class="row-title">Top Rated</h2>
+      <div class="row-posters" id="topRated"></div>
+    </section>
+
+    <section class="row" id="upcomingRow">
+      <h2 class="row-title">Upcoming</h2>
+      <div class="row-posters" id="upcoming"></div>
+    </section>
+
+    <section class="row" id="searchResultsRow" style="display: none;">
+      <h2 class="row-title">Search Results</h2>
+      <div class="row-posters" id="searchResults"></div>
+    </section>
+  </main>
+
+  <!-- Movie Detail Modal -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <span class="close-btn" id="closeModal">&times;</span>
+      <div class="modal-body">
+        <img id="modalPoster" src="" alt="Poster" class="modal-poster">
+        <div class="modal-info">
+          <h2 id="modalTitle"></h2>
+          <div class="modal-meta">
+            <span id="modalRating" class="rating"></span>
+            <span id="modalYear"></span>
+            <span id="modalRuntime"></span>
+          </div>
+          <p id="modalOverview"></p>
+          <div class="modal-buttons">
+            <button class="btn btn-play">▶ Play</button>
+            <button class="btn btn-info">+ My List</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+// ======================
+// Netflix Clone - No API Key Needed
+// ======================
+
+const IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
+const BACKDROP_BASE = 'https://image.tmdb.org/t/p/original';
+
+const moviesData = {
+  trending: [
+    {
+      id: 1,
+      title: "Dune: Part Two",
+      overview: "Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family.",
+      poster_path: "/8b8R8l88Qje9dn9OE8PY05vIVtk.jpg",
+      backdrop_path: "/xOMo8BRKQGDwm3EbibOA6yK3Ipm.jpg",
+      vote_average: 8.3,
+      release_date: "2024-03-01"
+    },
+    {
+      id: 2,
+      title: "Deadpool & Wolverine",
+      overview: "Wade Wilson suits up again with Wolverine to face an existential threat.",
+      poster_path: "/8cdWjvZQUExUUOe6tEJbY5D4JzE.jpg",
+      backdrop_path: "/yDHYTfA3R0jFYba16jBB1ef8pnh.jpg",
+      vote_average: 7.7,
+      release_date: "2024-07-26"
+    },
+    {
+      id: 3,
+      title: "Inside Out 2",
+      overview: "Riley's emotions face new challenges when Anxiety arrives.",
+      poster_path: "/vpnVM9B6NMmQpWeZvzLvDESb2QY.jpg",
+      backdrop_path: "/stKGOm8UyhuLPR9sZLjs5AkmncA.jpg",
+      vote_average: 7.6,
+      release_date: "2024-06-14"
+    },
+    {
+      id: 4,
+      title: "The Wild Robot",
+      overview: "A robot stranded on an island learns to survive with the help of animals.",
+      poster_path: "/wTnV3PCVW5O92JMrFvvrRcV39RU.jpg",
+      backdrop_path: "/vIidcfkvYj5re88xhPqB8pA9v5O.jpg",
+      vote_average: 8.5,
+      release_date: "2024-09-12"
+    }
+  ],{
+      id: 5,
+      title: "Alien: Romulus",
+      overview: "Young space colonizers face the most terrifying life form in the universe.",
+      poster_path: "/b33nnklLzLxyaRZY1IFbzs2h0c.jpg",
+      backdrop_path: "/9SSEUrSqhljBMzRe4aBTh95I7VA.jpg",
+      vote_average: 7.2,
+      release_date: "2024-08-16"
+    },
+    {
+      id: 6,
+      title: "Twisters",
+      overview: "Storm chasers face terrifying threats from the past.",
+      poster_path: "/pjnD08FlMAIXsfOLKQbvmO0f0MD.jpg",
+      backdrop_path: "/58D6ZAvOKxlHTYW4d7vX0nG7j6I.jpg",
+      vote_average: 7.0,
+      release_date: "2024-07-19"
+    },
+    {
+      id: 7,
+      title: "Despicable Me 4",
+      overview: "Gru and his family face a new enemy while welcoming Gru Jr.",
+      poster_path: "/wWba3TaojhK7NdycRhoQpsG0JWx.jpg",
+      backdrop_path: "/lgkPzcOSnTvjeMnuFzozRO5HHw1.jpg",
+      vote_average: 7.1,
+      release_date: "2024-07-03"
+    },
+    {
+      id: 8,
+      title: "Beetlejuice Beetlejuice",
+      overview: "The Deetz family returns home and faces Betelgeuse once again.",
+      poster_path: "/kKgQzkUCnQmeTPkyIwHly2ltCBo.jpg",
+      backdrop_path: "/b85RsdGgJ02AXbdCROz4e5K0jL.jpg",
+      vote_average: 7.1,
+      release_date: "2024-09-06"
+    }
+  ],
+  popular: [
+    {
+      id: 9,
+      title: "Oppenheimer",
+      overview: "The story of J. Robert Oppenheimer and the atomic bomb.",
+      poster_path: "/8Gxv8gSFCU0XGDykE0MqfK8v6mA.jpg",
+      backdrop_path: "/rLb2cwF3YphqtX6L0YfnOxjtEvq.jpg",
+      vote_average: 8.1,
+      release_date: "2023-07-21"
+    },
+    {
+      id: 10,
+      title: "Barbie",
+      overview: "Barbie and Ken discover the joys and perils of the real world.",
+      poster_path: "/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg",
+      backdrop_path: "/nHf61UzkfFno5X1ofIhugCPus2R.jpg",
+      vote_average: 7.0,
+      release_date: "2023-07-21"
+    },
+    {
+      id: 11,
+      title: "Spider-Man: Across the Spider-Verse",
+      overview: "Miles Morales journeys across the Multiverse.",
+      poster_path: "/8Vt6mWEReuy4Of61Lnj5Xj704m8.jpg",
+      backdrop_path: "/4HodYYKEIsGOdinkGi2Ucz6X9i0.jpg",
+      vote_average: 8.4,
+      release_date: "2023-06-02"
+    },
+    {
+      id: 12,
+      title: "The Batman",
+      overview: "Batman uncovers corruption in Gotham while facing the Riddler.",
+      poster_path: "/74xTEgt7R36Fpooo0S6k7P2fDLj.jpg",
+      backdrop_path: "/b0PlSFdDwbyK0cf5RxwDcoejOTH.jpg",
+      vote_average: 7.7,
+      release_date: "2022-03-04"
+    }
+  ],
+  topRated: [
+    {
+      id: 17,
+      title: "The Shawshank Redemption",
+      overview: "Two imprisoned men bond over years, finding solace and eventual redemption.",
+      poster_path: "/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg",
+      backdrop_path: "/kXfqcdQKsToO0OUXHcrrADqWjx6.jpg",
+      vote_average: 8.7,
+      release_date: "1994-09-23"
+    },
+    {
+      id: 18,
+      title: "The Godfather",
+      overview: "The aging patriarch of an organized crime dynasty transfers control to his son.",
+      poster_path: "/3bhkrj58Vtu7enYsRolD1fZdja1.jpg",
+      backdrop_path: "/tmU7GeKVybMWFButWEGl2M4GeiP.jpg",
+      vote_average: 8.7,
+      release_date: "1972-03-14"
+    },
+    {
+      id: 19,
+      title: "The Dark Knight",
+      overview: "Batman faces the Joker, a criminal mastermind who plunges Gotham into chaos.",
+      poster_path: "/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
+      backdrop_path: "/hqkBaDkMWbLaf8x1v2s4v2s4v2s4.jpg",
+      vote_average: 8.5,
+      release_date: "2008-07-18"
+    },
+    {
+      id: 20,
+      title: "Inception",
+      overview: "A thief who steals corporate secrets through dream-sharing technology is given the inverse task of planting an idea.",
+      poster_path: "/oYuLEt3zVCKq57qu2F8dT7NIa6.jpg",
+      backdrop_path: "/s3TBrX6M7eW2s5pJ6L7n8o9p0.jpg",
+      vote_average: 8.4,
+      release_date: "2010-07-16"
+    }
+  ],
+  upcoming: [
+    {
+      id: 25,
+      title: "Wicked",
+      overview: "The story of how Elphaba and Glinda became the Wicked Witch of the West and Glinda the Good.",
+      poster_path: "/c5Tqxeo1UpBvnAc3csUm7j3hlQl.jpg",
+      backdrop_path: "/uKb22E9d1fX1p2p3p4p5p6p7p8.jpg",
+      vote_average: 7.8,
+      release_date: "2024-11-22"
+    },
+    {
+      id: 26,
+      title: "Moana 2",
+      overview: "Moana journeys to the far seas of Oceania with Maui for a new adventure.",
+      poster_path: "/4YZpsylvHbQZDdw51aJyVSZ2b5T.jpg",
+      backdrop_path: "/tElnmtQ6yz1PjN1kePNl8yMSb59.jpg",
+      vote_average: 7.1,
+      release_date: "2024-11-27"
+    }
+  ]
+};
+
+// DOM Elements
+const hero = document.getElementById('hero');
+const heroTitle = document.getElementById('heroTitle');
+const heroOverview = document.getElementById('heroOverview');
+const trendingContainer = document.getElementById('trending');
+const popularContainer = document.getElementById('popular');
+const topRatedContainer = document.getElementById('topRated');
+const upcomingContainer = document.getElementById('upcoming');
+const searchResultsContainer = document.getElementById('searchResults');
+const searchResultsRow = document.getElementById('searchResultsRow');
+const searchInput = document.getElementById('searchInput');
+const searchBtn = document.getElementById('searchBtn');
+const modal = document.getElementById('modal');
+const closeModal = document.getElementById('closeModal');
+
+function createMovieCard(movie) {
+  const card = document.createElement('div');
+  card.classList.add('movie-card');
+  const posterPath = movie.poster_path ? IMAGE_BASE + movie.poster_path : 'https://via.placeholder.com/200x300/141414/e50914?text=No+Poster';
+  const title = movie.title || 'Unknown';
+  const rating = movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A';
+  
+  card.innerHTML = `
+    <img src="${posterPath}" alt="${title}" loading="lazy" onerror="this.src='https://via.placeholder.com/200x300/141414/e50914?text=No+Poster'">
+    <div class="card-info">
+      <div class="card-title">${title}</div>
+      <div class="card-rating">★ ${rating}</div>
+    </div>
+  `;
+  card.addEventListener('click', () => openModal(movie));
+  return card;
+}
+
+function renderRow(container, movies) {
+  container.innerHTML = '';
+  if (!movies || movies.length === 0) {
+    container.innerHTML = '<div class="loading">No movies found</div>';
+    return;
+  }
+  movies.forEach(movie => container.appendChild(createMovieCard(movie)));
+}
+
+function setHero(movie) {
+  if (!movie) return;
+  const backdrop = movie.backdrop_path ? BACKDROP_BASE + movie.backdrop_path : IMAGE_BASE + movie.poster_path;
+  hero.style.backgroundImage = `linear-gradient(to right, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.3) 50%, transparent 100%), url('${backdrop}')`;
+  heroTitle.textContent = movie.title;
+  heroOverview.textContent = movie.overview || 'No overview available.';
+}
+
+function openModal(movie) {
+  const posterPath = movie.poster_path ? IMAGE_BASE + movie.poster_path : 'https://via.placeholder.com/280x420/141414/e50914?text=No+Poster';
+  document.getElementById('modalPoster').src = posterPath;
+  document.getElementById('modalTitle').textContent = movie.title;
+  document.getElementById('modalRating').textContent = `★ ${movie.vote_average?.toFixed(1) || 'N/A'}`;
+  document.getElementById('modalYear').textContent = (movie.release_date || '').slice(0, 4);
+  document.getElementById('modalOverview').textContent = movie.overview || 'No overview available.';
+  modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModalFunc() {
+  modal.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+closeModal.addEventListener('click', closeModalFunc);
+modal.addEventListener('click', (e) => { if (e.target === modal) closeModalFunc(); });
+
+function performSearch(query) {
+  if (!query.trim()) {
+    searchResultsRow.style.display = 'none';
+    return;
+  }
+  const q = query.toLowerCase().trim();
+  const allMovies = [...moviesData.trending, ...moviesData.popular, ...moviesData.topRated, ...moviesData.upcoming];
+  const unique = allMovies.filter((movie, index, self) => index === self.findIndex(m => m.id === movie.id));
+  const results = unique.filter(movie => movie.title.toLowerCase().includes(q) || (movie.overview && movie.overview.toLowerCase().includes(q)));
+  searchResultsRow.style.display = 'block';
+  renderRow(searchResultsContainer, results);
+  searchResultsRow.scrollIntoView({ behavior: 'smooth' });
+}
+
+searchBtn.addEventListener('click', () => performSearch(searchInput.value));
+searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') performSearch(searchInput.value); });
+
+window.addEventListener('scroll', () => {
+  const navbar = document.querySelector('.navbar');
+  if (window.scrollY > 50) navbar.classList.add('scrolled');
+  else navbar.classList.remove('scrolled');
+});
+
+function init() {
+  if (moviesData.trending.length > 0) setHero(moviesData.trending[0]);
+  renderRow(trendingContainer, moviesData.trending);
+  renderRow(popularContainer, moviesData.popular);
+  renderRow(topRatedContainer, moviesData.topRated);
+  renderRow(upcomingContainer, moviesData.upcoming);
+}
+
+init();
+  </script>
+</body>
+</html>
