@@ -348,7 +348,9 @@ body {
   border-radius: 6px;
   flex-shrink: 0;
   box-shadow: 0 8px 24px rgba(0,0,0,0.6);
-}.modal-info h2 {
+}
+
+.modal-info h2 {
   font-size: 2rem;
   margin-bottom: 12px;
 }
@@ -527,184 +529,194 @@ body {
 
   <script>
 // ======================
-// Netflix Clone - No API Key Needed
+// Netflix Clone - TMDb API placeholder setup
 // ======================
 
+const API_KEY = 'YOUR_TMDB_API_KEY_HERE';
 const IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
 const BACKDROP_BASE = 'https://image.tmdb.org/t/p/original';
+const TMDB_BASE = 'https://api.themoviedb.org/3';
 
-const moviesData = {
+const defaultMoviesData = {
   trending: [
     {
       id: 1,
-      title: "Dune: Part Two",
-      overview: "Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family.",
-      poster_path: "/8b8R8l88Qje9dn9OE8PY05vIVtk.jpg",
-      backdrop_path: "/xOMo8BRKQGDwm3EbibOA6yK3Ipm.jpg",
+      title: 'Dune: Part Two',
+      overview: 'Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family.',
+      poster_path: '/8b8R8l88Qje9dn9OE8PY05vIVtk.jpg',
+      backdrop_path: '/xOMo8BRKQGDwm3EbibOA6yK3Ipm.jpg',
       vote_average: 8.3,
-      release_date: "2024-03-01"
+      release_date: '2024-03-01'
     },
     {
       id: 2,
-      title: "Deadpool & Wolverine",
-      overview: "Wade Wilson suits up again with Wolverine to face an existential threat.",
-      poster_path: "/8cdWjvZQUExUUOe6tEJbY5D4JzE.jpg",
-      backdrop_path: "/yDHYTfA3R0jFYba16jBB1ef8pnh.jpg",
+      title: 'Deadpool & Wolverine',
+      overview: 'Wade Wilson suits up again with Wolverine to face an existential threat.',
+      poster_path: '/8cdWjvZQUExUUOe6tEJbY5D4JzE.jpg',
+      backdrop_path: '/yDHYTfA3R0jFYba16jBB1ef8pnh.jpg',
       vote_average: 7.7,
-      release_date: "2024-07-26"
+      release_date: '2024-07-26'
     },
     {
       id: 3,
-      title: "Inside Out 2",
+      title: 'Inside Out 2',
       overview: "Riley's emotions face new challenges when Anxiety arrives.",
-      poster_path: "/vpnVM9B6NMmQpWeZvzLvDESb2QY.jpg",
-      backdrop_path: "/stKGOm8UyhuLPR9sZLjs5AkmncA.jpg",
+      poster_path: '/vpnVM9B6NMmQpWeZvzLvDESb2QY.jpg',
+      backdrop_path: '/stKGOm8UyhuLPR9sZLjs5AkmncA.jpg',
       vote_average: 7.6,
-      release_date: "2024-06-14"
+      release_date: '2024-06-14'
     },
     {
       id: 4,
-      title: "The Wild Robot",
-      overview: "A robot stranded on an island learns to survive with the help of animals.",
-      poster_path: "/wTnV3PCVW5O92JMrFvvrRcV39RU.jpg",
-      backdrop_path: "/vIidcfkvYj5re88xhPqB8pA9v5O.jpg",
+      title: 'The Wild Robot',
+      overview: 'A robot stranded on an island learns to survive with the help of animals.',
+      poster_path: '/wTnV3PCVW5O92JMrFvvrRcV39RU.jpg',
+      backdrop_path: '/vIidcfkvYj5re88xhPqB8pA9v5O.jpg',
       vote_average: 8.5,
-      release_date: "2024-09-12"
-    }
-  ],{
-      id: 5,
-      title: "Alien: Romulus",
-      overview: "Young space colonizers face the most terrifying life form in the universe.",
-      poster_path: "/b33nnklLzLxyaRZY1IFbzs2h0c.jpg",
-      backdrop_path: "/9SSEUrSqhljBMzRe4aBTh95I7VA.jpg",
-      vote_average: 7.2,
-      release_date: "2024-08-16"
-    },
-    {
-      id: 6,
-      title: "Twisters",
-      overview: "Storm chasers face terrifying threats from the past.",
-      poster_path: "/pjnD08FlMAIXsfOLKQbvmO0f0MD.jpg",
-      backdrop_path: "/58D6ZAvOKxlHTYW4d7vX0nG7j6I.jpg",
-      vote_average: 7.0,
-      release_date: "2024-07-19"
-    },
-    {
-      id: 7,
-      title: "Despicable Me 4",
-      overview: "Gru and his family face a new enemy while welcoming Gru Jr.",
-      poster_path: "/wWba3TaojhK7NdycRhoQpsG0JWx.jpg",
-      backdrop_path: "/lgkPzcOSnTvjeMnuFzozRO5HHw1.jpg",
-      vote_average: 7.1,
-      release_date: "2024-07-03"
-    },
-    {
-      id: 8,
-      title: "Beetlejuice Beetlejuice",
-      overview: "The Deetz family returns home and faces Betelgeuse once again.",
-      poster_path: "/kKgQzkUCnQmeTPkyIwHly2ltCBo.jpg",
-      backdrop_path: "/b85RsdGgJ02AXbdCROz4e5K0jL.jpg",
-      vote_average: 7.1,
-      release_date: "2024-09-06"
+      release_date: '2024-09-12'
     }
   ],
   popular: [
     {
       id: 9,
-      title: "Oppenheimer",
-      overview: "The story of J. Robert Oppenheimer and the atomic bomb.",
-      poster_path: "/8Gxv8gSFCU0XGDykE0MqfK8v6mA.jpg",
-      backdrop_path: "/rLb2cwF3YphqtX6L0YfnOxjtEvq.jpg",
+      title: 'Oppenheimer',
+      overview: 'The story of J. Robert Oppenheimer and the atomic bomb.',
+      poster_path: '/8Gxv8gSFCU0XGDykE0MqfK8v6mA.jpg',
+      backdrop_path: '/rLb2cwF3YphqtX6L0YfnOxjtEvq.jpg',
       vote_average: 8.1,
-      release_date: "2023-07-21"
+      release_date: '2023-07-21'
     },
     {
       id: 10,
-      title: "Barbie",
-      overview: "Barbie and Ken discover the joys and perils of the real world.",
-      poster_path: "/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg",
-      backdrop_path: "/nHf61UzkfFno5X1ofIhugCPus2R.jpg",
+      title: 'Barbie',
+      overview: 'Barbie and Ken discover the joys and perils of the real world.',
+      poster_path: '/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg',
+      backdrop_path: '/nHf61UzkfFno5X1ofIhugCPus2R.jpg',
       vote_average: 7.0,
-      release_date: "2023-07-21"
+      release_date: '2023-07-21'
     },
     {
       id: 11,
-      title: "Spider-Man: Across the Spider-Verse",
-      overview: "Miles Morales journeys across the Multiverse.",
-      poster_path: "/8Vt6mWEReuy4Of61Lnj5Xj704m8.jpg",
-      backdrop_path: "/4HodYYKEIsGOdinkGi2Ucz6X9i0.jpg",
+      title: 'Spider-Man: Across the Spider-Verse',
+      overview: 'Miles Morales journeys across the Multiverse.',
+      poster_path: '/8Vt6mWEReuy4Of61Lnj5Xj704m8.jpg',
+      backdrop_path: '/4HodYYKEIsGOdinkGi2Ucz6X9i0.jpg',
       vote_average: 8.4,
-      release_date: "2023-06-02"
+      release_date: '2023-06-02'
     },
     {
       id: 12,
-      title: "The Batman",
-      overview: "Batman uncovers corruption in Gotham while facing the Riddler.",
-      poster_path: "/74xTEgt7R36Fpooo0S6k7P2fDLj.jpg",
-      backdrop_path: "/b0PlSFdDwbyK0cf5RxwDcoejOTH.jpg",
+      title: 'The Batman',
+      overview: 'Batman uncovers corruption in Gotham while facing the Riddler.',
+      poster_path: '/74xTEgt7R36Fpooo0S6k7P2fDLj.jpg',
+      backdrop_path: '/b0PlSFdDwbyK0cf5RxwDcoejOTH.jpg',
       vote_average: 7.7,
-      release_date: "2022-03-04"
+      release_date: '2022-03-04'
     }
   ],
   topRated: [
     {
       id: 17,
-      title: "The Shawshank Redemption",
-      overview: "Two imprisoned men bond over years, finding solace and eventual redemption.",
-      poster_path: "/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg",
-      backdrop_path: "/kXfqcdQKsToO0OUXHcrrADqWjx6.jpg",
+      title: 'The Shawshank Redemption',
+      overview: 'Two imprisoned men bond over years, finding solace and eventual redemption.',
+      poster_path: '/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg',
+      backdrop_path: '/kXfqcdQKsToO0OUXHcrrADqWjx6.jpg',
       vote_average: 8.7,
-      release_date: "1994-09-23"
+      release_date: '1994-09-23'
     },
     {
       id: 18,
-      title: "The Godfather",
-      overview: "The aging patriarch of an organized crime dynasty transfers control to his son.",
-      poster_path: "/3bhkrj58Vtu7enYsRolD1fZdja1.jpg",
-      backdrop_path: "/tmU7GeKVybMWFButWEGl2M4GeiP.jpg",
+      title: 'The Godfather',
+      overview: 'The aging patriarch of an organized crime dynasty transfers control to his son.',
+      poster_path: '/3bhkrj58Vtu7enYsRolD1fZdja1.jpg',
+      backdrop_path: '/tmU7GeKVybMWFButWEGl2M4GeiP.jpg',
       vote_average: 8.7,
-      release_date: "1972-03-14"
+      release_date: '1972-03-14'
     },
     {
       id: 19,
-      title: "The Dark Knight",
-      overview: "Batman faces the Joker, a criminal mastermind who plunges Gotham into chaos.",
-      poster_path: "/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
-      backdrop_path: "/hqkBaDkMWbLaf8x1v2s4v2s4v2s4.jpg",
+      title: 'The Dark Knight',
+      overview: 'Batman faces the Joker, a criminal mastermind who plunges Gotham into chaos.',
+      poster_path: '/qJ2tW6WMUDux911r6m7haRef0WH.jpg',
+      backdrop_path: '/hqkBaDkMWbLaf8x1v2s4v2s4v2s4.jpg',
       vote_average: 8.5,
-      release_date: "2008-07-18"
+      release_date: '2008-07-18'
     },
     {
       id: 20,
-      title: "Inception",
-      overview: "A thief who steals corporate secrets through dream-sharing technology is given the inverse task of planting an idea.",
-      poster_path: "/oYuLEt3zVCKq57qu2F8dT7NIa6.jpg",
-      backdrop_path: "/s3TBrX6M7eW2s5pJ6L7n8o9p0.jpg",
+      title: 'Inception',
+      overview: 'A thief who steals corporate secrets through dream-sharing technology is given the inverse task of planting an idea.',
+      poster_path: '/oYuLEt3zVCKq57qu2F8dT7NIa6.jpg',
+      backdrop_path: '/s3TBrX6M7eW2s5pJ6L7n8o9p0.jpg',
       vote_average: 8.4,
-      release_date: "2010-07-16"
+      release_date: '2010-07-16'
     }
   ],
   upcoming: [
     {
       id: 25,
-      title: "Wicked",
-      overview: "The story of how Elphaba and Glinda became the Wicked Witch of the West and Glinda the Good.",
-      poster_path: "/c5Tqxeo1UpBvnAc3csUm7j3hlQl.jpg",
-      backdrop_path: "/uKb22E9d1fX1p2p3p4p5p6p7p8.jpg",
+      title: 'Wicked',
+      overview: 'The story of how Elphaba and Glinda became the Wicked Witch of the West and Glinda the Good.',
+      poster_path: '/c5Tqxeo1UpBvnAc3csUm7j3hlQl.jpg',
+      backdrop_path: '/uKb22E9d1fX1p2p3p4p5p6p7p8.jpg',
       vote_average: 7.8,
-      release_date: "2024-11-22"
+      release_date: '2024-11-22'
     },
     {
       id: 26,
-      title: "Moana 2",
-      overview: "Moana journeys to the far seas of Oceania with Maui for a new adventure.",
-      poster_path: "/4YZpsylvHbQZDdw51aJyVSZ2b5T.jpg",
-      backdrop_path: "/tElnmtQ6yz1PjN1kePNl8yMSb59.jpg",
+      title: 'Moana 2',
+      overview: 'Moana journeys to the far seas of Oceania with Maui for a new adventure.',
+      poster_path: '/4YZpsylvHbQZDdw51aJyVSZ2b5T.jpg',
+      backdrop_path: '/tElnmtQ6yz1PjN1kePNl8yMSb59.jpg',
       vote_average: 7.1,
-      release_date: "2024-11-27"
+      release_date: '2024-11-27'
     }
   ]
 };
+
+const moviesData = {
+  trending: [],
+  popular: [],
+  topRated: [],
+  upcoming: []
+};
+
+async function fetchMovies(endpoint) {
+  if (!API_KEY || API_KEY === 'YOUR_TMDB_API_KEY_HERE') {
+    return [];
+  }
+
+  const url = `${TMDB_BASE}/${endpoint}?api_key=${API_KEY}&language=en-US`;
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`TMDb request failed: ${response.status}`);
+  }
+
+  const data = await response.json();
+  return data.results || [];
+}
+
+async function loadMovies() {
+  try {
+    const [trending, popular, topRated, upcoming] = await Promise.all([
+      fetchMovies('trending/movie/day'),
+      fetchMovies('movie/popular'),
+      fetchMovies('movie/top_rated'),
+      fetchMovies('movie/upcoming')
+    ]);
+
+    moviesData.trending = trending.length ? trending : defaultMoviesData.trending;
+    moviesData.popular = popular.length ? popular : defaultMoviesData.popular;
+    moviesData.topRated = topRated.length ? topRated : defaultMoviesData.topRated;
+    moviesData.upcoming = upcoming.length ? upcoming : defaultMoviesData.upcoming;
+  } catch (error) {
+    console.warn('Using fallback data because TMDb is unavailable or key is missing.', error);
+    Object.assign(moviesData, defaultMoviesData);
+  }
+
+  init();
+}
 
 // DOM Elements
 const hero = document.getElementById('hero');
@@ -806,7 +818,7 @@ function init() {
   renderRow(upcomingContainer, moviesData.upcoming);
 }
 
-init();
+loadMovies();
   </script>
 </body>
 </html>
