@@ -314,6 +314,27 @@ body {
   }
 }
 
+.player-content {
+  max-width: 1200px;
+  width: 100%;
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.player-iframe {
+  width: 100%;
+  height: 65vh;
+  border: none;
+  background: #000;
+}
+
+.player-video {
+  width: 100%;
+  height: 65vh;
+  background: #000;
+}
+
 .close-btn {
   position: absolute;
   top: 15px;
@@ -348,9 +369,7 @@ body {
   border-radius: 6px;
   flex-shrink: 0;
   box-shadow: 0 8px 24px rgba(0,0,0,0.6);
-}
-
-.modal-info h2 {
+}.modal-info h2 {
   font-size: 2rem;
   margin-bottom: 12px;
 }
@@ -469,7 +488,7 @@ body {
       <h1 class="hero-title" id="heroTitle">Loading...</h1>
       <p class="hero-overview" id="heroOverview"></p>
       <div class="hero-buttons">
-        <button class="btn btn-play">▶ Play</button>
+        <button id="heroPlayBtn" class="btn btn-play">▶ Play</button>
         <button class="btn btn-info">ℹ More Info</button>
       </div>
     </div>
@@ -519,7 +538,7 @@ body {
           </div>
           <p id="modalOverview"></p>
           <div class="modal-buttons">
-            <button class="btn btn-play">▶ Play</button>
+            <button id="modalPlayBtn" class="btn btn-play">▶ Play</button>
             <button class="btn btn-info">+ My List</button>
           </div>
         </div>
@@ -527,15 +546,26 @@ body {
     </div>
   </div>
 
+  <!-- Player Modal (plays trailers or fallback sample video) -->
+  <div class="modal" id="playerModal">
+    <div class="player-content" role="dialog" aria-modal="true">
+      <span class="close-btn" id="closePlayer">&times;</span>
+      <div id="playerContainer">
+        <!-- iframe or video element will be injected here -->
+      </div>
+    </div>
+  </div>
+
   <script>
 // ======================
-// Netflix Clone - TMDb API placeholder setup
+// Netflix Clone - TMDb API placeholder + playable demo
 // ======================
 
 const API_KEY = 'YOUR_TMDB_API_KEY_HERE';
 const IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
 const BACKDROP_BASE = 'https://image.tmdb.org/t/p/original';
 const TMDB_BASE = 'https://api.themoviedb.org/3';
+const SAMPLE_VIDEO = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
 
 const defaultMoviesData = {
   trending: [
@@ -681,6 +711,8 @@ const moviesData = {
   upcoming: []
 };
 
+let currentMovie = null;
+
 async function fetchMovies(endpoint) {
   if (!API_KEY || API_KEY === 'YOUR_TMDB_API_KEY_HERE') {
     return [];
@@ -695,6 +727,20 @@ async function fetchMovies(endpoint) {
 
   const data = await response.json();
   return data.results || [];
+}
+
+async function fetchTrailerKey(movieId) {
+  if (!API_KEY || API_KEY === 'YOUR_TMDB_API_KEY_HERE') return null;
+  try {
+    const res = await fetch(`${TMDB_BASE}/movie/${movieId}/videos?api_key=${API_KEY}&language=en-US`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    const ytTrailer = data.results.find(v => v.site === 'YouTube' && v.type === 'Trailer');
+    const anyYouTube = data.results.find(v => v.site === 'YouTube');
+    return (ytTrailer || anyYouTube)?.key || null;
+  } catch (e) {
+    return null;
+  }
 }
 
 async function loadMovies() {
@@ -732,6 +778,11 @@ const searchInput = document.getElementById('searchInput');
 const searchBtn = document.getElementById('searchBtn');
 const modal = document.getElementById('modal');
 const closeModal = document.getElementById('closeModal');
+const heroPlayBtn = document.getElementById('heroPlayBtn');
+const modalPlayBtn = document.getElementById('modalPlayBtn');
+const playerModal = document.getElementById('playerModal');
+const playerContainer = document.getElementById('playerContainer');
+const closePlayer = document.getElementById('closePlayer');
 
 function createMovieCard(movie) {
   const card = document.createElement('div');
@@ -769,6 +820,7 @@ function setHero(movie) {
 }
 
 function openModal(movie) {
+  currentMovie = movie;
   const posterPath = movie.poster_path ? IMAGE_BASE + movie.poster_path : 'https://via.placeholder.com/280x420/141414/e50914?text=No+Poster';
   document.getElementById('modalPoster').src = posterPath;
   document.getElementById('modalTitle').textContent = movie.title;
@@ -786,6 +838,58 @@ function closeModalFunc() {
 
 closeModal.addEventListener('click', closeModalFunc);
 modal.addEventListener('click', (e) => { if (e.target === modal) closeModalFunc(); });
+
+async function playMovie(movie) {
+  // Try TMDb trailers (YouTube) if we have a key, otherwise fallback to sample video
+  if (!movie) return;
+  showPlayer();
+  // clear container
+  playerContainer.innerHTML = '';
+
+  const tryKey = await fetchTrailerKey(movie.id);
+  if (tryKey) {
+    // embed YouTube
+    const iframe = document.createElement('iframe');
+    iframe.className = 'player-iframe';
+    iframe.src = `https://www.youtube.com/embed/${tryKey}?autoplay=1&rel=0`;
+    iframe.allow = 'autoplay; encrypted-media; picture-in-picture';
+    playerContainer.appendChild(iframe);
+    return;
+  }
+
+  // No YouTube trailer available — use sample video
+  const video = document.createElement('video');
+  video.className = 'player-video';
+  video.controls = true;
+  video.autoplay = true;
+  video.src = SAMPLE_VIDEO;
+  playerContainer.appendChild(video);
+}
+
+function showPlayer() {
+  playerModal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function hidePlayer() {
+  playerModal.classList.remove('active');
+  // stop playback & cleanup
+  const iframe = playerContainer.querySelector('iframe');
+  const video = playerContainer.querySelector('video');
+  if (iframe) iframe.src = '';
+  if (video) { video.pause(); video.currentTime = 0; video.src = ''; }
+  playerContainer.innerHTML = '';
+  document.body.style.overflow = '';
+}
+
+closePlayer.addEventListener('click', hidePlayer);
+playerModal.addEventListener('click', (e) => { if (e.target === playerModal) hidePlayer(); });
+
+modalPlayBtn.addEventListener('click', () => playMovie(currentMovie));
+heroPlayBtn.addEventListener('click', () => {
+  const first = moviesData.trending[0] || moviesData.popular[0] || null;
+  if (first) playMovie(first);
+});
 
 function performSearch(query) {
   if (!query.trim()) {
